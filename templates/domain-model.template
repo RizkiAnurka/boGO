@@ -1,0 +1,11 @@
+package model
+
+<import_statement>
+// <struct_name> represents <entity_name> entity
+type <struct_name> struct {
+<fields>}
+
+// TableName returns the table name for GORM
+func (<struct_name>) TableName() string {
+	return "<table_name>"
+}

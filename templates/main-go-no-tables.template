@@ -1,0 +1,90 @@
+package main
+
+import (
+	"context"
+	"fmt"
+	"net/http"
+	"<module_name>/internal/interactor/rest"
+	"<module_name>/internal/repository/implementor/postgres"
+
+	graylog "github.com/gemnasium/logrus-graylog-hook/v3"
+	"github.com/julienschmidt/httprouter"
+	"github.com/kelseyhightower/envconfig"
+	"github.com/rs/cors"
+	gelf "github.com/seatgeek/logrus-gelf-formatter"
+	log "github.com/sirupsen/logrus"
+)
+
+type envConfig struct {
+	DBHost      string `envconfig:"DB_HOST" default:"localhost"`
+	DBName      string `envconfig:"DB_NAME" default:"<module_name>"`
+	DBUsername  string `envconfig:"DB_USER" default:"postgres"`
+	DBPassword  string `envconfig:"DB_PWD" default:"postgres"`
+	DBPort      int    `envconfig:"DB_PORT" default:"5432"`
+	ServicePort string `envconfig:"SVC_PORT" default:"8080"`
+	DebugMode   string `envconfig:"DEBUG_MODE" default:"debug"`
+	LogAddress  string `envconfig:"LOG_ADDRESS" default:"localhost:12201"`
+	LogMode     string `envconfig:"LOG_MODE" default:"local"`
+}
+
+var env envConfig
+
+func main() {
+	// Setup Logger
+	env = envConfig{}
+	envconfig.MustProcess("", &env)
+	log.SetFormatter(new(gelf.GelfFormatter))
+	log.SetLevel(log.DebugLevel)
+	if env.LogMode == "stream" {
+		hook := graylog.NewAsyncGraylogHook(env.LogAddress, map[string]any{"instance": "<module_name>"})
+		defer hook.Flush()
+		log.AddHook(hook)
+	}
+
+	ctx := context.Background()
+
+	// Connect to database
+	db, err := postgres.Connect(env.DBHost, env.DBName, env.DBPort, env.DBUsername, env.DBPassword)
+	if err != nil {
+		log.Error("Failed to connect to database: ", err.Error())
+		return
+	}
+
+	log.Info("Database Connected")
+	log.Info("No repositories to initialize - add your tables to the SQL schema")
+
+	// REST API Routes
+	router := httprouter.New()
+	restapi := rest.NewAPI(ctx)
+	restapi.WithRoutes(router)
+
+	// Handle CORS
+	controller := cors.New(cors.Options{
+		AllowedOrigins:   []string{"*"},
+		AllowCredentials: true,
+		AllowedMethods: []string{
+			http.MethodHead,
+			http.MethodGet,
+			http.MethodPost,
+			http.MethodPut,
+			http.MethodPatch,
+			http.MethodDelete,
+			http.MethodOptions,
+		},
+		AllowedHeaders: []string{"*"},
+	}).Handler(router)
+
+	// Initialize HTTP server
+	server := http.Server{
+		Addr:    fmt.Sprint(":", env.ServicePort),
+		Handler: controller,
+	}
+
+	log.Info("Server starting on port: ", env.ServicePort)
+	log.Info("Available endpoints:")
+	log.Info("  GET /health - Health check")
+
+	if err := server.ListenAndServe(); err != nil {
+		log.Error("Server failed to start: ", err)
+	}
+}

@@ -1,0 +1,16 @@
+package interactor
+
+import (
+	"context"
+	
+	"<module_name>/internal/application/dto"
+)
+
+// =============================================================================
+// INTERACTOR LAYER INTERFACES
+// =============================================================================
+// This file contains all service interfaces for the interactor layer.
+// These interfaces define the contract for business operations.
+// =============================================================================
+
+<interfaces>

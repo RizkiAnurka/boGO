@@ -1,0 +1,47 @@
+// Create<singular_name> handles POST /<entity_plural> - Create a new <entity_singular>
+func (h *<struct_name>Handler) Create<singular_name>(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
+	log.WithContext(h.ctx).Info("Creating new <entity_singular>")
+
+	var <entity_var> dto.<dto_name>
+	if err := json.NewDecoder(r.Body).Decode(&<entity_var>); err != nil {
+		log.WithContext(h.ctx).WithError(err).Error("Failed to decode request body")
+		wrapper := &responsewrapper.Wrapper{
+			Error:   err.Error(),
+			Message: "Invalid request body",
+			Code:    http.StatusBadRequest,
+		}
+		wrapper.Respond(w)
+		return
+	}
+
+	if err := h.validator.Struct(&<entity_var>); err != nil {
+		log.WithContext(h.ctx).WithError(err).Error("Validation failed for <entity_singular>")
+		wrapper := &responsewrapper.Wrapper{
+			Error:   err.Error(),
+			Message: "Validation failed",
+			Code:    http.StatusBadRequest,
+		}
+		wrapper.Respond(w)
+		return
+	}
+
+	created<singular_name>ID, err := h.service.Create(h.ctx, <entity_var>)
+	if err != nil {
+		log.WithContext(h.ctx).WithError(err).Error("Failed to create <entity_singular>")
+		wrapper := &responsewrapper.Wrapper{
+			Error:   err.Error(),
+			Message: "Failed to create <entity_singular>",
+			Code:    http.StatusInternalServerError,
+		}
+		wrapper.Respond(w)
+		return
+	}
+
+	log.WithContext(h.ctx).WithField("<entity_singular>_id", created<singular_name>ID).Info("Successfully created <entity_singular>")
+	wrapper := &responsewrapper.Wrapper{
+		Data:    created<singular_name>ID,
+		Message: "Successfully created <entity_singular>",
+		Code:    http.StatusCreated,
+	}
+	wrapper.Respond(w)
+}

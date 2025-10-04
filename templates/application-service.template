@@ -1,0 +1,95 @@
+package application
+
+import (
+	"context"
+
+	"<module_name>/internal/application/dto"
+	log "github.com/sirupsen/logrus"
+)
+
+// <service_name> represents the application service for <entity_name>
+type <service_name> struct {
+	ctx  context.Context
+	<repo_field_name> i<struct_name>
+}
+
+// New<service_name> creates a new <service_name> application service
+func New<service_name>(ctx context.Context, <repo_field_name> i<struct_name>) *<service_name> {
+	return &<service_name>{
+		ctx:  ctx,
+		<repo_field_name>: <repo_field_name>,
+	}
+}
+
+// Find retrieves <entity_name> entities based on filters
+func (s *<service_name>) Find(ctx context.Context, filter, sort map[string]any, limit, offset int) ([]dto.<struct_name>, int64, error) {
+	log.WithContext(ctx).Info("Finding <entity_name> entities")
+	domainModels, total, err := s.<repo_field_name>.Find(ctx, filter, sort, limit, offset)
+	if err != nil {
+		return nil, 0, err
+	}
+	
+	// Convert models to DTOs
+	var dtos []dto.<struct_name>
+	for _, domainModel := range domainModels {
+		var dtoItem dto.<struct_name>
+		dtoItem.Unmarshal(&domainModel)
+		dtos = append(dtos, dtoItem)
+	}
+	
+	return dtos, total, nil
+}
+
+// Create creates a new <entity_name> entity
+func (s *<service_name>) Create(ctx context.Context, entity dto.<struct_name>) (int64, error) {
+	log.WithContext(ctx).Info("Creating new <entity_name> entity")
+	
+	// Convert DTO to model
+	model, err := entity.Marshal()
+	if err != nil {
+		return 0, err
+	}
+	
+	err = s.<repo_field_name>.Create(ctx, &model)
+	if err != nil {
+		return 0, err
+	}
+	
+	// Return the ID of the created entity (GORM auto-populates the ID)
+	return model.ID, nil
+}
+
+// Update updates an existing <entity_name> entity
+func (s *<service_name>) Update(ctx context.Context, entity dto.<struct_name>) error {
+	log.WithContext(ctx).Info("Updating <entity_name> entity")
+	
+	// Convert DTO to model
+	model, err := entity.Marshal()
+	if err != nil {
+		return err
+	}
+	
+	return s.<repo_field_name>.Update(ctx, model)
+}
+
+// Delete removes a <entity_name> entity by ID
+func (s *<service_name>) Delete(ctx context.Context, id int64) error {
+	log.WithContext(ctx).WithField("id", id).Info("Deleting <entity_name> entity")
+	return s.<repo_field_name>.Delete(ctx, id)
+}
+
+// GetByID retrieves a <entity_name> entity by its ID
+func (s *<service_name>) GetByID(ctx context.Context, id int64) (dto.<struct_name>, error) {
+	log.WithContext(ctx).WithField("id", id).Info("Getting <entity_name> entity by ID")
+	
+	model, err := s.<repo_field_name>.GetByID(ctx, id)
+	if err != nil {
+		return dto.<struct_name>{}, err
+	}
+	
+	// Convert model to DTO
+	var dtoResult dto.<struct_name>
+	dtoResult.Unmarshal(&model)
+	
+	return dtoResult, nil
+}

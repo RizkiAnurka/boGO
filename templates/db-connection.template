@@ -1,0 +1,23 @@
+package postgres
+
+import (
+	"fmt"
+
+	log "github.com/sirupsen/logrus"
+	"gorm.io/driver/postgres"
+	"gorm.io/gorm"
+)
+
+// Connect establishes connection to PostgreSQL database
+func Connect(host, database string, port int, username, password string) (db *gorm.DB, err error) {
+	connectionString := fmt.Sprintf("host=%s port=%d user=%s password=%s dbname=%s sslmode=disable", 
+		host, port, username, password, database)
+	db, err = gorm.Open(postgres.Open(connectionString), &gorm.Config{})
+	if err != nil {
+		log.Error(err.Error())
+		return db, err
+	}
+
+	log.Info("DB Connected")
+	return db, err
+}

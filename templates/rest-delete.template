@@ -1,0 +1,48 @@
+// Delete<singular_name> handles DELETE /<entity_plural>/:id - Delete a <entity_singular>
+func (h *<struct_name>Handler) Delete<singular_name>(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
+	idStr := ps.ByName("id")
+	log.WithContext(h.ctx).WithField("id", idStr).Info("Deleting <entity_singular>")
+
+	id, err := strconv.ParseInt(idStr, 10, 32)
+	if err != nil {
+		log.WithContext(h.ctx).WithError(err).WithField("id", idStr).Error("Invalid ID format")
+		wrapper := &responsewrapper.Wrapper{
+			Error:   "ID must be a valid number",
+			Message: "Invalid ID format",
+			Code:    http.StatusBadRequest,
+		}
+		wrapper.Respond(w)
+		return
+	}
+
+	err = h.service.Delete(h.ctx, id)
+	if err != nil {
+		log.WithContext(h.ctx).WithError(err).WithField("id", id).Error("Failed to delete <entity_singular>")
+		
+		if err.Error() == "<singular_name> not found" {
+			wrapper := &responsewrapper.Wrapper{
+				Error:   "No <entity_singular> found with the given ID",
+				Message: "<singular_name> not found",
+				Code:    http.StatusNotFound,
+			}
+			wrapper.Respond(w)
+			return
+		}
+		
+		wrapper := &responsewrapper.Wrapper{
+			Error:   err.Error(),
+			Message: "Failed to delete <entity_singular>",
+			Code:    http.StatusInternalServerError,
+		}
+		wrapper.Respond(w)
+		return
+	}
+
+	log.WithContext(h.ctx).WithField("id", id).Info("Successfully deleted <entity_singular>")
+	wrapper := &responsewrapper.Wrapper{
+		Data:    map[string]interface{}{"id": uint(id)},
+		Message: "Successfully deleted <entity_singular>",
+		Code:    http.StatusOK,
+	}
+	wrapper.Respond(w)
+}

@@ -1,0 +1,16 @@
+-- +goose Up
+-- +goose StatementBegin
+<schema_creation>
+<table_creations>
+-- +goose StatementEnd
+
+-- +goose StatementBegin
+<index_creations>
+-- +goose StatementEnd
+
+-- +goose Down
+-- +goose StatementBegin
+<index_drops>
+<table_drops>
+<schema_drops>
+-- +goose StatementEnd

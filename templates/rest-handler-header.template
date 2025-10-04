@@ -1,0 +1,31 @@
+package rest
+
+import (
+	"context"
+	"encoding/json"
+	"net/http"
+	"strconv"
+
+	"<module_name>/internal/application/dto"
+	"<module_name>/internal/interactor"
+	responsewrapper "github.com/RizkiAnurka/go-library/response-wrapper"
+	log "github.com/sirupsen/logrus"
+	"github.com/go-playground/validator/v10"
+	"github.com/julienschmidt/httprouter"
+)
+
+// <struct_name>Handler handles HTTP requests for <entity_plural>
+type <struct_name>Handler struct {
+	ctx       context.Context
+	service   interactor.I<struct_name>Service
+	validator *validator.Validate
+}
+
+// New<struct_name>Handler creates a new <struct_name>Handler instance
+func New<struct_name>Handler(ctx context.Context, service interactor.I<struct_name>Service) *<struct_name>Handler {
+	return &<struct_name>Handler{
+		ctx:       ctx,
+		service:   service,
+		validator: validator.New(),
+	}
+}

@@ -1,0 +1,16 @@
+package interactor
+
+import (
+	"context"
+	
+	"<module_name>/internal/application/dto"
+)
+
+// <service_name> interface for <entity_name> business operations
+type <service_name> interface {
+	Find(ctx context.Context, filter map[string]any, sort map[string]any, limit, offset int) (<dto_plural_param> dto.<dto_plural>, total int64, err error)
+	Create(ctx context.Context, <dto_param> dto.<dto_name>) (int64, error)
+	Update(ctx context.Context, <dto_param> dto.<dto_name>) error
+	Delete(ctx context.Context, id int64) error
+	GetByID(ctx context.Context, id int64) (dto.<dto_name>, error)
+}

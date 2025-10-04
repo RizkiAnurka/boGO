@@ -1,0 +1,36 @@
+package dto
+
+import (
+<import_statement>
+	"<module_name>/internal/domain/model"
+)
+
+// <dto_struct_name> representing <entity_name> dto
+type <dto_struct_name> struct {
+<fields>}
+
+// <plural_name> representing collection of <dto_struct_name>
+type <plural_name> []<dto_struct_name>
+
+// Marshal converts DTO to domain model
+func (d *<dto_struct_name>) Marshal() (model.<struct_name>, error) {
+	domainModel := model.<struct_name>{
+		MetaField: model.MetaField{ID: d.ID},<marshal_fields>
+	}
+	
+	return domainModel, nil
+}
+
+// Unmarshal converts domain model to DTO
+func (d *<dto_struct_name>) Unmarshal(domainModel *model.<struct_name>) {
+	d.ID = domainModel.MetaField.ID<unmarshal_fields>
+}
+
+// Unmarshal converts slice of domain models to DTOs
+func (d *<plural_name>) Unmarshal(domainModels []model.<struct_name>) {
+	for _, domainModel := range domainModels {
+		var dto <dto_struct_name>
+		dto.Unmarshal(&domainModel)
+		*d = append(*d, dto)
+	}
+}

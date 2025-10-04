@@ -1,0 +1,16 @@
+package application
+
+import (
+	"context"
+
+	"<module_name>/internal/domain/model"
+)
+
+// =============================================================================
+// APPLICATION LAYER INTERFACES
+// =============================================================================
+// This file contains all repository interfaces for the application layer.
+// These interfaces define the contract for data access operations.
+// =============================================================================
+
+<interfaces>

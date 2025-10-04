@@ -1,0 +1,35 @@
+package rest
+
+import (
+	"context"
+	"net/http"<interactor_import>
+	responsewrapper "github.com/RizkiAnurka/go-library/response-wrapper"
+	
+	"github.com/julienschmidt/httprouter"
+)
+
+// API handles REST API routing and operations
+type API struct {
+	ctx context.Context
+<service_fields>}
+
+// NewAPI creates a new REST API instance
+func NewAPI(ctx context.Context<service_params>) *API {
+	return &API{
+		ctx: ctx,
+<service_init>	}
+}
+
+// WithRoutes configures all HTTP routes on the provided router
+func (r *API) WithRoutes(router *httprouter.Router) {
+	// Health check endpoint
+	router.GET("/health", func(w http.ResponseWriter, req *http.Request, _ httprouter.Params) {
+		data := map[string]string{"status": "healthy", "service": "<module_name>", "version": "1.0.0"}
+		wrapper := &responsewrapper.Wrapper{
+			Data:    data,
+			Message: "Service is healthy",
+			Code:    http.StatusOK,
+		}
+		wrapper.Respond(w)
+	})
+<route_registrations>}

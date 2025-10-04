@@ -1,0 +1,29 @@
+package rest
+
+import (
+	"context"
+	"encoding/json"
+	"net/http"
+	"strconv"
+
+	"<module_name>/internal/application/dto"
+	"github.com/RizkiAnurka/go-library/response-wrapper"
+	"github.com/julienschmidt/httprouter"
+	log "github.com/sirupsen/logrus"
+)
+
+// <struct_name>Handler handles HTTP requests for <entity_name> operations
+type <struct_name>Handler struct {
+	ctx     context.Context
+	service <service_interface>
+}
+
+// New<struct_name>Handler creates a new <struct_name>Handler
+func New<struct_name>Handler(ctx context.Context, service <service_interface>) *<struct_name>Handler {
+	return &<struct_name>Handler{
+		ctx:     ctx,
+		service: service,
+	}
+}
+
+<handler_methods>

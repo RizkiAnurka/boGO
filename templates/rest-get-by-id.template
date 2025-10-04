@@ -1,0 +1,48 @@
+// Get<singular_name>ByID handles GET /<entity_plural>/:id - Get a <entity_singular> by ID
+func (h *<struct_name>Handler) Get<singular_name>ByID(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
+	idStr := ps.ByName("id")
+	log.WithContext(h.ctx).WithField("id", idStr).Info("Getting <entity_singular> by ID")
+
+	id, err := strconv.ParseInt(idStr, 10, 32)
+	if err != nil {
+		log.WithContext(h.ctx).WithError(err).WithField("id", idStr).Error("Invalid ID format")
+		wrapper := &responsewrapper.Wrapper{
+			Error:   "ID must be a valid number",
+			Message: "Invalid ID format",
+			Code:    http.StatusBadRequest,
+		}
+		wrapper.Respond(w)
+		return
+	}
+
+	<entity_var>, err := h.service.GetByID(h.ctx, id)
+	if err != nil {
+		log.WithContext(h.ctx).WithError(err).WithField("id", id).Error("Failed to get <entity_singular>")
+		
+		if err.Error() == "<singular_name> not found" {
+			wrapper := &responsewrapper.Wrapper{
+				Error:   "No <entity_singular> found with the given ID",
+				Message: "<singular_name> not found",
+				Code:    http.StatusNotFound,
+			}
+			wrapper.Respond(w)
+			return
+		}
+		
+		wrapper := &responsewrapper.Wrapper{
+			Error:   err.Error(),
+			Message: "Failed to retrieve <entity_singular>",
+			Code:    http.StatusInternalServerError,
+		}
+		wrapper.Respond(w)
+		return
+	}
+
+	log.WithContext(h.ctx).WithField("id", id).Info("Successfully retrieved <entity_singular>")
+	wrapper := &responsewrapper.Wrapper{
+		Data:    <entity_var>,
+		Message: "Successfully retrieved <entity_singular>",
+		Code:    http.StatusOK,
+	}
+	wrapper.Respond(w)
+}

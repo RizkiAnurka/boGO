@@ -1,0 +1,74 @@
+// Update<singular_name> handles PUT /<entity_plural>/:id - Update a <entity_singular>
+func (h *<struct_name>Handler) Update<singular_name>(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
+	idStr := ps.ByName("id")
+	log.WithContext(h.ctx).WithField("id", idStr).Info("Updating <entity_singular>")
+
+	id, err := strconv.ParseInt(idStr, 10, 32)
+	if err != nil {
+		log.WithContext(h.ctx).WithError(err).WithField("id", idStr).Error("Invalid ID format")
+		wrapper := &responsewrapper.Wrapper{
+			Error:   "ID must be a valid number",
+			Message: "Invalid ID format",
+			Code:    http.StatusBadRequest,
+		}
+		wrapper.Respond(w)
+		return
+	}
+
+	var <entity_var> dto.<dto_name>
+	if err := json.NewDecoder(r.Body).Decode(&<entity_var>); err != nil {
+		log.WithContext(h.ctx).WithError(err).Error("Failed to decode request body")
+		wrapper := &responsewrapper.Wrapper{
+			Error:   err.Error(),
+			Message: "Invalid request body",
+			Code:    http.StatusBadRequest,
+		}
+		wrapper.Respond(w)
+		return
+	}
+
+	// Set the ID from URL parameter
+	<entity_var>.ID = id
+
+	if err := h.validator.Struct(&<entity_var>); err != nil {
+		log.WithContext(h.ctx).WithError(err).Error("Validation failed for <entity_singular>")
+		wrapper := &responsewrapper.Wrapper{
+			Error:   err.Error(),
+			Message: "Validation failed",
+			Code:    http.StatusBadRequest,
+		}
+		wrapper.Respond(w)
+		return
+	}
+
+	err = h.service.Update(h.ctx, <entity_var>)
+	if err != nil {
+		log.WithContext(h.ctx).WithError(err).WithField("id", id).Error("Failed to update <entity_singular>")
+		
+		if err.Error() == "<singular_name> not found" {
+			wrapper := &responsewrapper.Wrapper{
+				Error:   "No <entity_singular> found with the given ID",
+				Message: "<singular_name> not found",
+				Code:    http.StatusNotFound,
+			}
+			wrapper.Respond(w)
+			return
+		}
+		
+		wrapper := &responsewrapper.Wrapper{
+			Error:   err.Error(),
+			Message: "Failed to update <entity_singular>",
+			Code:    http.StatusInternalServerError,
+		}
+		wrapper.Respond(w)
+		return
+	}
+
+	log.WithContext(h.ctx).WithField("id", id).Info("Successfully updated <entity_singular>")
+	wrapper := &responsewrapper.Wrapper{
+		Data:    <entity_var>,
+		Message: "Successfully updated <entity_singular>",
+		Code:    http.StatusOK,
+	}
+	wrapper.Respond(w)
+}

@@ -1,0 +1,12 @@
+package model
+
+import "time"
+
+// MetaField contains common fields for all domain models
+type MetaField struct {
+	ID        int64     `gorm:"primarykey" json:"id"`
+	CreatedAt time.Time `gorm:"created_at" json:"created_at"`
+	UpdatedAt time.Time `gorm:"updated_at" json:"updated_at"`
+	DeletedAt *time.Time `gorm:"deleted_at;index" json:"deleted_at,omitempty"`
+	IsDeleted bool      `gorm:"is_deleted;default:false" json:"is_deleted"`
+}

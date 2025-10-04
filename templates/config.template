@@ -1,0 +1,14 @@
+package config
+
+// EnvConfig holds all environment configuration
+type EnvConfig struct {
+	DBHost      string `envconfig:"DB_HOST" default:"localhost"`
+	DBName      string `envconfig:"DB_NAME" default:"<module_name>"`
+	DBUsername  string `envconfig:"DB_USER" default:"postgres"`
+	DBPassword  string `envconfig:"DB_PWD" default:"postgres"`
+	DBPort      int    `envconfig:"DB_PORT" default:"5432"`
+	ServicePort string `envconfig:"SVC_PORT" default:"8080"`
+	DebugMode   string `envconfig:"DEBUG_MODE" default:"debug"`
+	LogAddress  string `envconfig:"LOG_ADDRESS" default:"localhost:12201"`
+	LogMode     string `envconfig:"LOG_MODE" default:"local"`
+}
