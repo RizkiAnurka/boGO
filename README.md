@@ -200,23 +200,33 @@ curl -X PUT http://localhost:8080/users/1 \
 curl -X DELETE http://localhost:8080/users/1
 ```
 
----
+## **Real-World Example**
 
-## **License**
+### Input: Simple SQL Schema
+```sql
+CREATE TABLE users (
+    id BIGSERIAL PRIMARY KEY,
+    email VARCHAR(255) UNIQUE NOT NULL,
+    name VARCHAR(255) NOT NULL,
+    created_at TIMESTAMPTZ DEFAULT NOW()
+);
+```
 
-boGO is licensed under the **BSD 3-Clause License**. See [LICENSE](LICENSE) for details.
+### Output: Complete Microservice
+- **Hexagonal Architecture** with 4 layers
+- **REST API** with full CRUD operations  
+- **PostgreSQL Integration** with migrations
+- **Docker Containerization** ready to deploy
+- **Testing Framework** with mockable interfaces
+- **Monitoring & Logging** with health checks
+- **Configuration Management** via environment variables
 
-**What this means:**
-- **Commercial use** - Use boGO to generate services for your business
-- **Modify and distribute** - Fork, enhance, and share your improvements  
-- **Generated code is yours** - No licensing obligations for your microservices
-- **Private use** - Use internally without disclosure requirements
-- **Attribution required** - Include license notice in redistributions
-- **Name protection** - Cannot use "boGO" name to endorse derived products
+**From zero to production-ready microservice in seconds!**
 
-**boGO - From SQL schema to production-ready Go microservice in seconds.**
+*Built with love for the Go community. Making excellent architecture obvious, because life's too short for bad code.*
 
----
+
+## **Architectural Stuff**
 
 ### **Unified Interface Architecture**
 - **Single adapter.go files**: Consolidated interfaces per layer for better maintainability
@@ -249,27 +259,20 @@ The generator uses external templates in the `templates/` directory, making it e
 - Extend architecture patterns
 - Update response formats and validation rules
 
-## **Real-World Example**
+---
 
-### Input: Simple SQL Schema
-```sql
-CREATE TABLE users (
-    id BIGSERIAL PRIMARY KEY,
-    email VARCHAR(255) UNIQUE NOT NULL,
-    name VARCHAR(255) NOT NULL,
-    created_at TIMESTAMPTZ DEFAULT NOW()
-);
-```
+## **License**
 
-### Output: Complete Microservice
-- **Hexagonal Architecture** with 4 layers
-- **REST API** with full CRUD operations  
-- **PostgreSQL Integration** with migrations
-- **Docker Containerization** ready to deploy
-- **Testing Framework** with mockable interfaces
-- **Monitoring & Logging** with health checks
-- **Configuration Management** via environment variables
+boGO is licensed under the **BSD 3-Clause License**. See [LICENSE](LICENSE) for details.
 
-**From zero to production-ready microservice in seconds!**
+**What this means:**
+- **Commercial use** - Use boGO to generate services for your business
+- **Modify and distribute** - Fork, enhance, and share your improvements  
+- **Generated code is yours** - No licensing obligations for your microservices
+- **Private use** - Use internally without disclosure requirements
+- **Attribution required** - Include license notice in redistributions
+- **Name protection** - Cannot use "boGO" name to endorse derived products
 
-*Built with love for the Go community. Making excellent architecture obvious, because life's too short for bad code.*
+**boGO - From SQL schema to production-ready Go microservice in seconds.**
+
+---
