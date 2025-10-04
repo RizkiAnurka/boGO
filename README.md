@@ -42,7 +42,7 @@ When you need a Go microservice, the architecture choice should be **obvious**:
 
 ```bash
 # Clone boGO
-git clone <repository-url>
+git clone https://github.com/RizkiAnurka/boGO
 cd boGO
 
 # Generate service from SQL schema
