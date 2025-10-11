@@ -1,0 +1,8 @@
+// I<struct_name>Service interface for <entity_name> business operations
+type I<struct_name>Service interface {
+	Find(ctx context.Context, filter map[string]any, sort map[string]any, limit, offset int) (<entity_name>s dto.<struct_name>s, total int64, err error)
+	Create(ctx context.Context, <entity_name> dto.<struct_name>) (int64, error)
+	Update(ctx context.Context, <entity_name> dto.<struct_name>) error
+	Delete(ctx context.Context, id int64) error
+	GetByID(ctx context.Context, id int64) (dto.<struct_name>, error)
+}

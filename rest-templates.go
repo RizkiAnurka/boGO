@@ -39,14 +39,21 @@ func generateRestAPIMain(moduleName string, tables []Table) string {
 
 		serviceInit.WriteString(fmt.Sprintf("\t\t%s: %s,\n", fieldName, fieldName))
 
-		// Generate route registrations
-		routeRegistrations.WriteString(fmt.Sprintf("\n\t// %s routes\n", structName))
-		routeRegistrations.WriteString(fmt.Sprintf("\t%sHandler := New%sHandler(r.ctx, r.%s)\n", entityName, structName, fieldName))
-		routeRegistrations.WriteString(fmt.Sprintf("\trouter.GET(\"/%s\", %sHandler.GetAll%s)\n", entityPlural, entityName, structName+"s"))
-		routeRegistrations.WriteString(fmt.Sprintf("\trouter.POST(\"/%s\", %sHandler.Create%s)\n", entityPlural, entityName, structName))
-		routeRegistrations.WriteString(fmt.Sprintf("\trouter.GET(\"/%s/:id\", %sHandler.Get%sByID)\n", entityPlural, entityName, structName))
-		routeRegistrations.WriteString(fmt.Sprintf("\trouter.PUT(\"/%s/:id\", %sHandler.Update%s)\n", entityPlural, entityName, structName))
-		routeRegistrations.WriteString(fmt.Sprintf("\trouter.DELETE(\"/%s/:id\", %sHandler.Delete%s)\n", entityPlural, entityName, structName))
+		// Generate route registrations using template
+		routeVars := map[string]string{
+			"struct_name":   structName,
+			"entity_name":   entityName,
+			"entity_plural": entityPlural,
+			"plural_name":   structName + "s",
+			"field_name":    fieldName,
+		}
+
+		routeResult, err := processTemplate("rest-routes", routeVars)
+		if err != nil {
+			panic(fmt.Sprintf("Error processing rest-routes template: %v", err))
+		}
+		routeRegistrations.WriteString("\n")
+		routeRegistrations.WriteString(routeResult)
 	}
 
 	serviceParamsStr := ""
@@ -106,37 +113,37 @@ func generateRestHandler(moduleName string, table Table) string {
 	handler.WriteString(headerResult)
 
 	// Individual handler methods
-	getAllResult, err := processTemplate("rest-get-all", vars)
+	getAllResult, err := processTemplate("rest-func-get-all", vars)
 	if err != nil {
-		panic(fmt.Sprintf("Error processing rest-get-all template: %v", err))
+		panic(fmt.Sprintf("Error processing rest-func-get-all template: %v", err))
 	}
 	handler.WriteString("\n")
 	handler.WriteString(getAllResult)
 
-	createResult, err := processTemplate("rest-create", vars)
+	createResult, err := processTemplate("rest-func-create", vars)
 	if err != nil {
-		panic(fmt.Sprintf("Error processing rest-create template: %v", err))
+		panic(fmt.Sprintf("Error processing rest-func-create template: %v", err))
 	}
 	handler.WriteString("\n")
 	handler.WriteString(createResult)
 
-	getByIDResult, err := processTemplate("rest-get-by-id", vars)
+	getByIDResult, err := processTemplate("rest-func-get-by-id", vars)
 	if err != nil {
-		panic(fmt.Sprintf("Error processing rest-get-by-id template: %v", err))
+		panic(fmt.Sprintf("Error processing rest-func-get-by-id template: %v", err))
 	}
 	handler.WriteString("\n")
 	handler.WriteString(getByIDResult)
 
-	updateResult, err := processTemplate("rest-update", vars)
+	updateResult, err := processTemplate("rest-func-update", vars)
 	if err != nil {
-		panic(fmt.Sprintf("Error processing rest-update template: %v", err))
+		panic(fmt.Sprintf("Error processing rest-func-update template: %v", err))
 	}
 	handler.WriteString("\n")
 	handler.WriteString(updateResult)
 
-	deleteResult, err := processTemplate("rest-delete", vars)
+	deleteResult, err := processTemplate("rest-func-delete", vars)
 	if err != nil {
-		panic(fmt.Sprintf("Error processing rest-delete template: %v", err))
+		panic(fmt.Sprintf("Error processing rest-func-delete template: %v", err))
 	}
 	handler.WriteString("\n")
 	handler.WriteString(deleteResult)
@@ -148,13 +155,12 @@ func generateRestHandler(moduleName string, table Table) string {
 func generateRestParameter(tables []Table) string {
 	var allContent strings.Builder
 
-	// Add package header and imports
-	allContent.WriteString("package rest\n\n")
-	allContent.WriteString("import (\n")
-	allContent.WriteString("\t\"reflect\"\n\n")
-	allContent.WriteString("\thttpHelper \"github.com/RizkiAnurka/go-library/http-helper\"\n")
-	allContent.WriteString(")\n\n")
-	allContent.WriteString("var (\n")
+	// Add package header and imports using template
+	headerResult, err := processTemplate("rest-parameter-header", map[string]string{})
+	if err != nil {
+		panic(fmt.Sprintf("Error processing rest-parameter-header template: %v", err))
+	}
+	allContent.WriteString(headerResult)
 
 	// Generate filter and sorting variables for each table
 	for i, table := range tables {

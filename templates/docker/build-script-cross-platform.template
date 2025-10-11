@@ -1,0 +1,32 @@
+#!/bin/bash
+
+# Cross-platform build script for <module_name>
+
+echo "Building <module_name> for multiple platforms..."
+
+# Create build directory
+mkdir -p build
+
+# Build for Windows (AMD64)
+echo "Building for Windows AMD64..."
+GOOS=windows GOARCH=amd64 go build -o build/<module_name>-windows-amd64.exe ./cmd/<module_name>
+
+# Build for Linux (AMD64)
+echo "Building for Linux AMD64..."
+GOOS=linux GOARCH=amd64 go build -o build/<module_name>-linux-amd64 ./cmd/<module_name>
+
+# Build for macOS (AMD64)
+echo "Building for macOS AMD64..."
+GOOS=darwin GOARCH=amd64 go build -o build/<module_name>-darwin-amd64 ./cmd/<module_name>
+
+# Build for macOS (ARM64 - Apple Silicon)
+echo "Building for macOS ARM64..."
+GOOS=darwin GOARCH=arm64 go build -o build/<module_name>-darwin-arm64 ./cmd/<module_name>
+
+# Build for Linux (ARM64)
+echo "Building for Linux ARM64..."
+GOOS=linux GOARCH=arm64 go build -o build/<module_name>-linux-arm64 ./cmd/<module_name>
+
+echo "Cross-platform build complete!"
+echo "Binaries available in build/ directory:"
+ls -la build/

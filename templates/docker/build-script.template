@@ -1,0 +1,16 @@
+#!/bin/bash
+
+# Build script for <module_name> (Linux/macOS)
+
+echo "Building <module_name>..."
+
+# Create build directory
+mkdir -p build
+
+# Navigate to service directory
+cd cmd/<module_name>
+
+# Build the application
+go build -o ../../build/<module_name>
+
+echo "Build complete! Binary available at build/<module_name>"

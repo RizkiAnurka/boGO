@@ -1,0 +1,7 @@
+	// <struct_name> routes
+	<entity_name>Handler := New<struct_name>Handler(r.ctx, r.<field_name>)
+	router.GET("/<entity_plural>", r.Authenticate(<entity_name>Handler.GetAll<plural_name>, []string{}))
+	router.POST("/<entity_plural>", r.Authenticate(<entity_name>Handler.Create<struct_name>, []string{}))
+	router.GET("/<entity_plural>/:id", r.Authenticate(<entity_name>Handler.Get<struct_name>ByID, []string{}))
+	router.PUT("/<entity_plural>/:id", r.Authenticate(<entity_name>Handler.Update<struct_name>, []string{}))
+	router.DELETE("/<entity_plural>/:id", r.Authenticate(<entity_name>Handler.Delete<struct_name>, []string{}))

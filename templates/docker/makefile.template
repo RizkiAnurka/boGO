@@ -1,0 +1,47 @@
+# Build the application
+build:
+	cd cmd/<module_name> && go build -o ../../build/<module_name>
+
+# Run the application
+run:
+	cd cmd/<module_name> && go run main.go
+
+# Run tests
+test:
+	go test ./...
+
+# Run tests with coverage
+test-coverage:
+	go test -coverprofile=coverage.out ./...
+	go tool cover -html=coverage.out
+
+# Format code
+fmt:
+	go fmt ./...
+
+# Lint code
+lint:
+	go vet ./...
+	gofmt -l .
+	golint ./...
+	golangci-lint run
+
+# Clean build artifacts
+clean:
+	rm -rf build/
+	rm -f coverage.out
+
+# Install dependencies
+deps:
+	go mod download
+	go mod tidy
+
+# Docker build
+docker-build:
+	docker build -t <module_name> .
+
+# Docker run
+docker-run:
+	docker-compose up
+
+.PHONY: build run test test-coverage fmt lint clean deps docker-build docker-run
