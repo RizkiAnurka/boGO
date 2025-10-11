@@ -1,0 +1,8 @@
+// Adapter to <entity_name> repository
+type i<struct_name> interface {
+	Find(ctx context.Context, filter, sort map[string]any, limit, offset int) (res []model.<struct_name>, total int64, err error)
+	Create(ctx context.Context, <entity_name> *model.<struct_name>) error
+	Update(ctx context.Context, <entity_name> model.<struct_name>) error
+	Delete(ctx context.Context, id int64) error
+	GetByID(ctx context.Context, id int64) (model.<struct_name>, error)
+}

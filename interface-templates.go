@@ -17,16 +17,18 @@ func generateUnifiedApplicationInterfaces(moduleName string, tables []Table) str
 
 		entityName := strings.ToLower(structName)
 
-		interfaces.WriteString(fmt.Sprintf(`// Adapter to %s repository
-type i%s interface {
-	Find(ctx context.Context, filter, sort map[string]any, limit, offset int) (res []model.%s, total int64, err error)
-	Create(ctx context.Context, %s *model.%s) error
-	Update(ctx context.Context, %s model.%s) error
-	Delete(ctx context.Context, id int64) error
-	GetByID(ctx context.Context, id int64) (model.%s, error)
-}
+		// Use template for interface generation
+		interfaceVars := map[string]string{
+			"entity_name": entityName,
+			"struct_name": structName,
+		}
 
-`, entityName, structName, structName, entityName, structName, entityName, structName, structName))
+		interfaceResult, err := processTemplate("application-interface-content", interfaceVars)
+		if err != nil {
+			panic(fmt.Sprintf("Error processing application-interface-content template: %v", err))
+		}
+		interfaces.WriteString(interfaceResult)
+		interfaces.WriteString("\n")
 	}
 
 	variables := map[string]string{
@@ -53,16 +55,18 @@ func generateUnifiedInteractorInterfaces(moduleName string, tables []Table) stri
 
 		entityName := strings.ToLower(structName)
 
-		interfaces.WriteString(fmt.Sprintf(`// I%sService interface for %s business operations
-type I%sService interface {
-	Find(ctx context.Context, filter map[string]any, sort map[string]any, limit, offset int) (%ss dto.%ss, total int64, err error)
-	Create(ctx context.Context, %s dto.%s) (int64, error)
-	Update(ctx context.Context, %s dto.%s) error
-	Delete(ctx context.Context, id int64) error
-	GetByID(ctx context.Context, id int64) (dto.%s, error)
-}
+		// Use template for interface generation
+		interfaceVars := map[string]string{
+			"entity_name": entityName,
+			"struct_name": structName,
+		}
 
-`, structName, entityName, structName, entityName, structName, entityName, structName, entityName, structName, structName))
+		interfaceResult, err := processTemplate("interactor-interface-content", interfaceVars)
+		if err != nil {
+			panic(fmt.Sprintf("Error processing interactor-interface-content template: %v", err))
+		}
+		interfaces.WriteString(interfaceResult)
+		interfaces.WriteString("\n")
 	}
 
 	variables := map[string]string{

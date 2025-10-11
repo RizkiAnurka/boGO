@@ -1,0 +1,78 @@
+package rest
+
+import (
+	"context"
+	"net/http"<interactor_import>
+	responsewrapper "github.com/RizkiAnurka/go-library/response-wrapper"
+	
+	"github.com/julienschmidt/httprouter"
+)
+
+// Context key types to avoid collisions
+type contextKey string
+
+const (
+	userInfoKey contextKey = "user-info"
+	tokenKey    contextKey = "token"
+)
+
+// API handles REST API routing and operations
+type API struct {
+	ctx context.Context
+<service_fields>}
+
+// NewAPI creates a new REST API instance
+func NewAPI(ctx context.Context<service_params>) *API {
+	return &API{
+		ctx: ctx,
+<service_init>	}
+}
+
+func (r *API) Authenticate(h httprouter.Handle, attributes []string) httprouter.Handle {
+	tokenValid := true
+	
+	return func(w http.ResponseWriter, req *http.Request, ps httprouter.Params) {
+		// Extract token from Authorization header
+		authHeader := req.Header.Get("Authorization")
+		if authHeader == "" {
+			wrapper := &responsewrapper.Wrapper{
+				Data:    nil,
+				Message: "Missing Authorization header",
+				Code:    http.StatusUnauthorized,
+			}
+			wrapper.Respond(w)
+			return
+		}
+		token := authHeader[len("Bearer "):]
+
+		// TODO: Validate token and check attributes
+		if !tokenValid {
+			wrapper := &responsewrapper.Wrapper{
+				Data:    nil,
+				Message: "Invalid or expired token",
+				Code:    http.StatusUnauthorized,
+			}
+			wrapper.Respond(w)
+			return
+		} else {
+			user := "boGo user"
+			req = req.WithContext(context.WithValue(req.Context(), userInfoKey, user))
+			req = req.WithContext(context.WithValue(req.Context(), tokenKey, token))
+		}
+		h(w, req, ps)
+	}
+}
+
+// WithRoutes configures all HTTP routes on the provided router
+func (r *API) WithRoutes(router *httprouter.Router) {
+	// Health check endpoint
+	router.GET("/health", func(w http.ResponseWriter, req *http.Request, _ httprouter.Params) {
+		data := map[string]string{"status": "healthy", "service": "<module_name>", "version": "1.0.0"}
+		wrapper := &responsewrapper.Wrapper{
+			Data:    data,
+			Message: "Service is healthy",
+			Code:    http.StatusOK,
+		}
+		wrapper.Respond(w)
+	})
+<route_registrations>}

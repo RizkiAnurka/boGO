@@ -1,0 +1,16 @@
+@echo off
+REM Build script for <module_name> (Windows)
+
+echo Building <module_name>...
+
+REM Create build directory
+if not exist "build" mkdir build
+
+REM Navigate to service directory
+cd cmd\<module_name>
+
+REM Build the application
+go build -o ..\..\build\<module_name>.exe
+
+echo Build complete! Binary available at build\<module_name>.exe
+pause
