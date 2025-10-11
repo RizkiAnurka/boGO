@@ -1,0 +1,5 @@
+	<entity_snake>Filter = []httpHelper.QueryInfo{<filter_fields>
+	}
+
+	<entity_snake>Sorting = []httpHelper.QueryInfo{<sorting_fields>
+	}

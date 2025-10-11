@@ -1,0 +1,33 @@
+# CODEOWNERS file for boGO - Boilerplate of Obviously GOlang
+# This file defines who is responsible for code in this repository.
+# More info: https://help.github.com/articles/about-codeowners/
+
+# Global owners - these users will be requested for review when anyone opens a pull request
+* @RizkiAnurka
+
+# Core code generation logic
+/main.go @RizkiAnurka
+/sql-parser.go @RizkiAnurka
+/model-templates.go @RizkiAnurka
+/rest-templates.go @RizkiAnurka
+/file-generator.go @RizkiAnurka
+/docker-templates.go @RizkiAnurka
+/directory-gen.go @RizkiAnurka
+/goose-generator.go @RizkiAnurka
+
+# Templates directory - critical for code generation
+/templates/ @RizkiAnurka
+
+# GitHub configuration files
+/.github/ @RizkiAnurka
+
+# Documentation
+/README.md @RizkiAnurka
+/LICENSE @RizkiAnurka
+
+# Configuration files
+/go.mod @RizkiAnurka
+/go.sum @RizkiAnurka
+
+# Schema files
+*.sql @RizkiAnurka
