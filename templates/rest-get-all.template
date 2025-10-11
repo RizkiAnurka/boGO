@@ -2,28 +2,38 @@
 func (h *<struct_name>Handler) GetAll<plural_name>(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 	log.WithContext(h.ctx).Info("Getting all <entity_plural>")
 
+	wrapper := new(responsewrapper.Wrapper)
 	// Extract query parameters for filtering and pagination
-	filter := make(map[string]any)
-	sort := make(map[string]any)
-	
+
 	// Default pagination
 	limit := 10
 	offset := 0
-	
+
 	// Parse limit and offset from query parameters
 	if limitStr := r.URL.Query().Get("limit"); limitStr != "" {
 		if parsedLimit, err := strconv.Atoi(limitStr); err == nil && parsedLimit > 0 {
 			limit = parsedLimit
 		}
 	}
-	
+
 	if offsetStr := r.URL.Query().Get("offset"); offsetStr != "" {
 		if parsedOffset, err := strconv.Atoi(offsetStr); err == nil && parsedOffset >= 0 {
 			offset = parsedOffset
 		}
 	}
 
-	<entity_plural>, total, err := h.service.Find(h.ctx, filter, sort, limit, offset)
+	filters, err := httpHelper.ReadQuery(r, <entity_snake>Filter)
+	if err != nil {
+		log.Error("Failed to retrieve filters ", err.Error())
+		wrapper.Code = http.StatusBadRequest
+		wrapper.Error = err.Error()
+		wrapper.Message = "Failed to retrieve filters"
+		wrapper.Respond(w)
+		return
+	}
+	sortings := httpHelper.ReadSorting(r, <entity_snake>Sorting)
+
+	<entity_plural>, total, err := h.service.Find(h.ctx, filters, sortings, limit, offset)
 	if err != nil {
 		log.WithContext(h.ctx).WithError(err).Error("Failed to get <entity_plural>")
 		wrapper := &responsewrapper.Wrapper{
@@ -36,8 +46,8 @@ func (h *<struct_name>Handler) GetAll<plural_name>(w http.ResponseWriter, r *htt
 	}
 
 	log.WithContext(h.ctx).WithField("count", len(<entity_plural>)).WithField("total", total).Info("Successfully retrieved <entity_plural>")
-	
-	wrapper := &responsewrapper.Wrapper{
+
+	wrapper = &responsewrapper.Wrapper{
 		Data:    <entity_plural>,
 		Message: "Successfully retrieved <entity_plural>",
 		Code:    http.StatusOK,

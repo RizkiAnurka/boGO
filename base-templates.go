@@ -22,15 +22,7 @@ func generateGoMod(moduleName string) string {
 func generateMainGo(moduleName string, tables []Table) string {
 	if len(tables) == 0 {
 		// When no tables, use the no-tables template
-		variables := map[string]string{
-			"module_name": moduleName,
-		}
-
-		content, err := processTemplate("main-go-no-tables", variables)
-		if err != nil {
-			panic(fmt.Sprintf("Failed to generate main.go (no tables): %v", err))
-		}
-		return content
+		panic(fmt.Sprintf("Failed to generate main.go (no tables)"))
 	}
 
 	// Build repository initialization code

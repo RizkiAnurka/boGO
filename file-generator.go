@@ -266,6 +266,15 @@ func generateRestAPI(moduleName string, tables []Table) error {
 	}
 	fmt.Printf("Created REST API: %s\n", restFile)
 
+	// Generate REST parameter file
+	parameterContent := generateRestParameter(tables)
+	parameterFile := filepath.Join(moduleName, "internal", "interactor", "rest", "rest_parameter.go")
+
+	if err := writeFile(parameterFile, parameterContent); err != nil {
+		return err
+	}
+	fmt.Printf("Created REST parameters: %s\n", parameterFile)
+
 	// Generate individual handlers for each table
 	for _, table := range tables {
 		handlerContent := generateRestHandler(moduleName, table)

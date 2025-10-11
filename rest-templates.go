@@ -89,6 +89,7 @@ func generateRestHandler(moduleName string, table Table) string {
 		"struct_name":     structName,
 		"entity_singular": entityName,
 		"entity_plural":   entityPlural,
+		"entity_snake":    entityName,
 		"singular_name":   singularName,
 		"plural_name":     pluralName,
 		"dto_name":        dtoName,
@@ -141,4 +142,82 @@ func generateRestHandler(moduleName string, table Table) string {
 	handler.WriteString(deleteResult)
 
 	return handler.String()
+}
+
+// generateRestParameter creates the REST parameter file for filtering and sorting
+func generateRestParameter(tables []Table) string {
+	var allContent strings.Builder
+
+	// Add package header and imports
+	allContent.WriteString("package rest\n\n")
+	allContent.WriteString("import (\n")
+	allContent.WriteString("\t\"reflect\"\n\n")
+	allContent.WriteString("\thttpHelper \"github.com/RizkiAnurka/go-library/http-helper\"\n")
+	allContent.WriteString(")\n\n")
+	allContent.WriteString("var (\n")
+
+	// Generate filter and sorting variables for each table
+	for i, table := range tables {
+		structName := toCamelCase(table.Name)
+		if strings.HasSuffix(structName, "s") {
+			structName = structName[:len(structName)-1]
+		}
+
+		entitySnake := strings.ToLower(structName)
+
+		// Generate filter fields
+		var filterFields strings.Builder
+		var sortingFields strings.Builder
+
+		// Add ID field first
+		filterFields.WriteString("\n\t\t{Omitempty: true, DBKey: \"id\", Kind: reflect.Int64, QueryKey: \"id\"},")
+		sortingFields.WriteString("\n\t\t{DBKey: \"id\", QueryKey: \"id\", Kind: reflect.Int64},")
+
+		// Add other fields
+		for _, col := range table.Columns {
+			if strings.ToLower(col.Name) == "id" ||
+				strings.ToLower(col.Name) == "created_at" ||
+				strings.ToLower(col.Name) == "updated_at" ||
+				strings.ToLower(col.Name) == "deleted_at" ||
+				strings.ToLower(col.Name) == "is_deleted" {
+				continue
+			}
+
+			reflectType := "reflect.String"
+			if col.GoType == "int64" {
+				reflectType = "reflect.Int64"
+			} else if col.GoType == "float64" {
+				reflectType = "reflect.Float64"
+			} else if col.GoType == "bool" {
+				reflectType = "reflect.Bool"
+			}
+
+			filterFields.WriteString(fmt.Sprintf("\n\t\t{Omitempty: true, DBKey: \"%s\", Kind: %s, QueryKey: \"%s\"},", col.Name, reflectType, col.Name))
+			sortingFields.WriteString(fmt.Sprintf("\n\t\t{DBKey: \"%s\", QueryKey: \"%s\", Kind: %s},", col.Name, col.Name, reflectType))
+		}
+
+		// Process template for this table
+		variables := map[string]string{
+			"entity_snake":   entitySnake,
+			"filter_fields":  filterFields.String(),
+			"sorting_fields": sortingFields.String(),
+		}
+
+		result, err := processTemplate("rest-parameter", variables)
+		if err != nil {
+			panic(fmt.Sprintf("Error processing rest-parameter template: %v", err))
+		}
+
+		allContent.WriteString(result)
+
+		// Add spacing between tables (except for the last one)
+		if i < len(tables)-1 {
+			allContent.WriteString("\n")
+		}
+	}
+
+	// Close the var block
+	allContent.WriteString("\n)\n")
+
+	return allContent.String()
 }
